@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'aws-minikube' }
 
     stages {
         stage('Build') {
