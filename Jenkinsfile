@@ -8,9 +8,19 @@ pipeline {
             }
         }
 
+        stage('Load') {
+            steps {
+                sh 'minikube image load miapp:$BUILD_NUMBER'
+            }
+        }
+
         stage('Deploy') {
             steps {
-                sh 'kubectl apply -f k8s/'
+                sh '''
+                    sed "s|image: miapp:.*|image: miapp:$BUILD_NUMBER|" k8s/deployment.yaml | kubectl apply -f -
+                    kubectl apply -f k8s/service.yaml
+                    kubectl rollout status deployment/miapp --timeout=180s
+                '''
             }
         }
     }
